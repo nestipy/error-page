@@ -1,24 +1,29 @@
-import { CodeBlock } from "react-code-block";
-import { themes } from "prism-react-renderer";
 import { MdOutlineError } from "react-icons/md";
 import nestipy from './assets/nestipy.png'
-import React, { useCallback, useEffect, useState } from "react";
+import React, { CSSProperties, useCallback, useEffect, useState } from "react";
 import _data from './error.json'
+import { Prism } from 'react-syntax-highlighter';
+import './assets/dracula.css'
+import { LineRenderer } from "./components/LineRenderer.tsx";
 
 
 function App() {
     const [stackTrack, setStackTrack] = useState<typeof _data | undefined>(undefined)
     const [trackBack, setTrackBack] = React.useState<typeof _data.traceback[number] | undefined>();
     const scrollTo = useCallback((id: string) => {
+
         const codeBlock = document.getElementById('code-block');
         const violation = document.getElementById(id);
-        console.log(violation!.offsetTop)
-        codeBlock!.scrollTo({
-            top: violation!.offsetTop - 300,
-            left: 0,
-            behavior: "instant"
-        });
+
+        if (codeBlock && violation) {
+            codeBlock!.scrollTo({
+                top: violation!.offsetTop - 300,
+                left: 0,
+                behavior: "instant"
+            });
+        }
     }, [])
+
 
     useEffect(() => {
         if (trackBack && stackTrack) {
@@ -38,6 +43,7 @@ function App() {
         }
 
     }, []);
+
 
     return <div className="w-full flex-1 flex items-center flex-col py-12 gap-y-10 px-4 ">
         <div id="error-data" data-json={JSON.stringify(_data)}/>
@@ -70,14 +76,14 @@ function App() {
                     {stackTrack?.request.method.toUpperCase()} {stackTrack?.request.host}
                 </div>
                 <div className="capitalize px-4 text-green-700">
-                    Python {stackTrack?.framework.python}  —  Nestipy {stackTrack?.framework.nestipy}
+                    Python {stackTrack?.framework.python} — Nestipy {stackTrack?.framework.nestipy}
                 </div>
             </div>
         </div>
         <div
             className="flex flex-1 flex-col lg:flex-row gap-x-5 max-w-[1200px] w-full bg-gray-900/80 py-8 px-8 lg:p-8  border border-gray-800 rounded-md">
             <div
-                className="w-full lg:w-[300px] py-6 lg:p-6 rounded-md text-gray-300 text-sm flex flex-col gap-y-2 max-h-[600px] scrollbar-none overflow-y-auto">
+                className="w-full lg:w-[300px] py-6 lg:p-6 rounded-md text-gray-300 text-sm flex flex-col gap-y-2 max-h-[650px] scrollbar-none overflow-y-auto">
                 {(stackTrack?.traceback ?? []).map((track) => {
                     return (
                         <div key={`${track.is_package ? '' : stackTrack?.root + '/'}${track.filename}-${track.lineno}`}
@@ -87,40 +93,48 @@ function App() {
                         </div>)
                 })}
             </div>
-            <div className="flex flex-col flex-1 w-full lg:w-3/5 gap-y-6">
-                {trackBack && (<CodeBlock
-                    theme={themes.dracula} code={trackBack.code} lines={[trackBack.lineno]}
-                    language="python">
-                    <div
-                        className=" relative !bg-gray-800/40 rounded-lg  shadow-md text-sm ">{/* Filename */}
-                        <div
-                            className="text-sm text-gray-400 px-8 py-6 break-words text-wrap">{trackBack.is_package ? '' : stackTrack?.root + '/'}{trackBack.filename} :{trackBack.lineno}</div>
-                        <CodeBlock.Code
-                            id="code-block"
-                            className="!px-0 max-h-[500px] overflow-auto scrollbar-none text-gray-100">
-                            {({isLineHighlighted, lineNumber}) => (
-                                <div
-                                    className={`table-row ${
-                                        isLineHighlighted ? 'bg-red-700/20' : 'opacity-60'
-                                    }`}
-                                    {...lineNumber === trackBack.lineno ? {id: `${stackTrack?.root}/${trackBack.filename}-${trackBack.lineno}`} : {}}
-                                >
-                                    <span
-                                        className={`table-cell pl-6 pr-4 text-sm text-right select-none ${
-                                            isLineHighlighted ? 'text-gray-200' : 'text-gray-200'
-                                        }`}
-                                    >{lineNumber}</span>
-                                    <CodeBlock.LineContent className="table-cell w-full pr-6 py-1">
-                                        <CodeBlock.Token/>
-                                    </CodeBlock.LineContent>
-                                </div>
-                            )}
-                        </CodeBlock.Code>
+            <div className="flex flex-col flex-1 w-full lg:w-3/5 gap-y-6  pt-6">
+                {trackBack && (
+                    <div className="relative !bg-gray-800/40 rounded-md  shadow-md text-sm">
+                        <div className="text-sm text-gray-400 px-8 py-6 break-words text-wrap">
+                            {trackBack.is_package ? '' : stackTrack?.root + '/'}{trackBack.filename} :{trackBack.lineno}
+                        </div>
+                        <Prism
+                            showLineNumbers={true}
+                            customStyle={{
+                                backgroundColor: 'transparent',
+                                borderRadius: 8,
+                                paddingTop: 20,
+                                scrollbarWidth: 'none',
+                                maxHeight: 500,
+                                overflow: 'auto',
+                                opacity: 0.85
+                            }}
+
+                            language="python"
+                            lineProps={(lineNumber) => {
+                                const st: CSSProperties = {display: 'block', width: '100%', padding: 2};
+                                if (lineNumber === trackBack.lineno) {
+                                    st.backgroundColor = 'rgba(96,17,29,0.71)';
+                                    return {
+                                        style: st,
+                                        id: `${stackTrack?.root}/${trackBack.filename}-${trackBack.lineno}`
+                                    };
+                                }
+                                return {style: st}
+                            }}
+                            CodeTag={(props) => <div {...props} style={{width: '100%', display: 'flex'}}/>}
+                            renderer={LineRenderer({})}
+                            PreTag={(props) => <pre id="code-block" {...props}/>}
+                            style={{}}>
+                            {trackBack.code}
+                        </Prism>
                         <div className="text-sm text-gray-500 px-6 pb-4 text-right uppercase select-none pt-4 ">
                             python
                         </div>
                     </div>
-                </CodeBlock>)}
+                )}
+
             </div>
         </div>
     </div>

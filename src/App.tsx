@@ -46,7 +46,7 @@ function App() {
 
 
     return <div className="w-full flex-1 flex items-center flex-col py-12 gap-y-10 px-4 ">
-        <div id="error-data" data-json={JSON.stringify(_data)}/>
+        {/*<div id="error-data" data-json={JSON.stringify(_data)}/>*/}
         <div
             className="flex flex-1 max-w-[1200px] w-full justify-between rounded-md gap-x-5b items-center lg:items-center ">
             <div className="w-auto flex-1 items-center flex gap-x-5">
@@ -67,7 +67,7 @@ function App() {
                 <div className="capitalize bg-red-800/30 px-4 py-1 rounded-3xl text-red-600 text-sm">
                     {stackTrack?.type}
                 </div>
-                <div className="font-bold capitalize text-lg px-4 break-words text-wrap">
+                <div className="font-bold text-lg px-4 break-words text-wrap">
                     {stackTrack?.message}
                 </div>
             </div>
@@ -97,7 +97,9 @@ function App() {
                 {trackBack && (
                     <div className="relative !bg-gray-800/40 rounded-md  shadow-md text-sm">
                         <div className="text-sm text-gray-400 px-8 py-6 break-words text-wrap">
-                            {trackBack.is_package ? '' : stackTrack?.root + '/'}{trackBack.filename} :{trackBack.lineno}
+                            <a className="hover:underline" target="_blank" href={`file:/${trackBack.is_package ? '' : stackTrack?.root + '/'}${trackBack.filename}#${trackBack.lineno}`}>
+                                {trackBack.is_package ? '' : stackTrack?.root + '/'}{trackBack.filename} :{trackBack.lineno}
+                            </a>
                         </div>
                         <Prism
                             showLineNumbers={true}
@@ -114,7 +116,7 @@ function App() {
                             language="python"
                             lineProps={(lineNumber) => {
                                 const st: CSSProperties = {display: 'block', width: '100%', padding: 2};
-                                if (lineNumber === trackBack.lineno) {
+                                if (lineNumber  === trackBack.lineno) {
                                     st.backgroundColor = 'rgba(96,17,29,0.71)';
                                     return {
                                         style: st,
@@ -123,6 +125,7 @@ function App() {
                                 }
                                 return {style: st}
                             }}
+                            startingLineNumber={trackBack.start_line_number}
                             CodeTag={(props) => <div {...props} style={{width: '100%', display: 'flex'}}/>}
                             renderer={LineRenderer({})}
                             PreTag={(props) => <pre id="code-block" {...props}/>}

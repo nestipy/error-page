@@ -37,7 +37,6 @@ function App() {
         if (dataSelector) {
             const json = JSON.parse(dataSelector.getAttribute('data-json') ?? '')
             const t = json.traceback
-            console.log(t.reverse()[0])
             setTrackBack(t[0])
             setStackTrack(json)
         }
@@ -46,19 +45,19 @@ function App() {
 
 
     return <div className="w-full flex-1 flex items-center flex-col py-12 gap-y-10 px-4 ">
-        {/*<div id="error-data" data-json={JSON.stringify(_data)}/>*/}
+        {/* <div id="error-data" data-json={JSON.stringify(_data)} /> */}
         <div
             className="flex flex-1 max-w-[1200px] w-full justify-between rounded-md gap-x-5b items-center lg:items-center ">
             <div className="w-auto flex-1 items-center flex gap-x-5">
                 <div className="flex rounded-[50px] w-[50px] h-[50px] bg-red-800/30 justify-center items-center">
-                    <MdOutlineError className="text-red-400" size={20}/>
+                    <MdOutlineError className="text-red-400" size={20} />
                 </div>
                 <div className="font-bold capitalize text-xl">
                     {stackTrack?.exception}
                 </div>
             </div>
             <div className="pr-3">
-                <img src={nestipy} height={30} width={30} alt="Logo"/>
+                <img src={nestipy} height={30} width={30} alt="Logo" />
             </div>
         </div>
         <div
@@ -75,7 +74,7 @@ function App() {
                 <div className="px-4 text-gray-200 bg-gray-400/10 py-2 rounded-3xl text-sm">
                     {stackTrack?.request.method.toUpperCase()} {stackTrack?.request.host}
                 </div>
-                <div className="capitalize px-4 text-green-700">
+                <div className="capitalize px-4 text-green-600">
                     Python {stackTrack?.framework.python} — Nestipy {stackTrack?.framework.nestipy}
                 </div>
             </div>
@@ -87,8 +86,8 @@ function App() {
                 {(stackTrack?.traceback ?? []).map((track) => {
                     return (
                         <div key={`${track.is_package ? '' : stackTrack?.root + '/'}${track.filename}-${track.lineno}`}
-                             onClick={() => setTrackBack(track)}
-                             className={JSON.stringify(track) !== JSON.stringify(trackBack) ? "cursor-pointer w-full p-3 rounded-sm bg-gray-800/20 text-wrap break-words" : 'text-wrap break-words border-l-2 border-l-red-800 border border-gray-800 py-5 cursor-pointer w-full p-3 rounded-sm bg-gray-800/20 text-gray-200'}>
+                            onClick={() => setTrackBack(track)}
+                            className={JSON.stringify(track) !== JSON.stringify(trackBack) ? "text-wrap break-words border-l-2 border-l-transparent border border-transparent py-3 cursor-pointer w-full p-3 rounded-sm bg-gray-800/20 text-gray-300" : 'text-wrap break-words border-l-2 border-l-red-800 border border-gray-800 py-3 cursor-pointer w-full p-3 rounded-sm bg-gray-800/60 text-gray-300'}>
                             <span>{track.filename} :{track.lineno}</span>
                         </div>)
                 })}
@@ -115,20 +114,20 @@ function App() {
 
                             language="python"
                             lineProps={(lineNumber) => {
-                                const st: CSSProperties = {display: 'block', width: '100%', padding: 2};
-                                if (lineNumber  === trackBack.lineno) {
+                                const st: CSSProperties = { display: 'block', width: '100%', padding: 2 };
+                                if (lineNumber === trackBack.lineno) {
                                     st.backgroundColor = 'rgba(96,17,29,0.71)';
                                     return {
                                         style: st,
                                         id: `${stackTrack?.root}/${trackBack.filename}-${trackBack.lineno}`
                                     };
                                 }
-                                return {style: st}
+                                return { style: st }
                             }}
                             startingLineNumber={trackBack.start_line_number}
-                            CodeTag={(props) => <div {...props} style={{width: '100%', display: 'flex'}}/>}
+                            CodeTag={(props) => <div {...props} style={{ width: '100%', display: 'flex' }} />}
                             renderer={LineRenderer({})}
-                            PreTag={(props) => <pre id="code-block" {...props}/>}
+                            PreTag={(props) => <pre id="code-block" {...props} />}
                             style={{}}>
                             {trackBack.code}
                         </Prism>

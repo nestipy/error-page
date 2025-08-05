@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-    --bg-color: rgb(17 24 39);
+    --bg-color: rgb(14, 20, 30);
     --text-color: #f5f5f5;
     background-color: var(--bg-color);
     color: var(--text-color);
